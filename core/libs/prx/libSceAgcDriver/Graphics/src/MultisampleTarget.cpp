@@ -783,6 +783,7 @@ private:
         Require(FindGuestColorTargetFormat(use.format, use.elementBytes).has_value(), "initial multisample color format or element size is unsupported");
         const auto bytes = MultisampledColorBytes(use);
         Require(bytes != 0 && bytes <= std::numeric_limits<std::size_t>::max(), "initial multisample color footprint is not implemented");
+        if (ResidentDepthGuardOverlaps(use.address, static_cast<std::size_t>(bytes)) || !GuestMemory::Accessible(reinterpret_cast<const void*>(use.address), static_cast<std::size_t>(bytes))) return VkClearColorValue{};
         std::vector<std::byte> initialColor(static_cast<std::size_t>(bytes));
         GuestMemory::Read(use.address, initialColor);
         const auto repeated = std::equal(initialColor.begin() + use.elementBytes, initialColor.end(), initialColor.begin());
